@@ -7,8 +7,10 @@
 int main()
 {
 	char choice[8] = {'\0'};
+	char allign[32] = {'\0'};
 	unsigned short data;
 	int fd,channel,allignment;
+	int padc=0, pa=0;
 
 	fd = open("/dev/8_ADC", O_RDONLY);
 	if (fd == -1) {
@@ -41,17 +43,37 @@ int main()
 			printf("Enter ADC channel number: ");
 			scanf("%d", &channel);
 			while( getchar() != '\n');
-			if( ioctl(fd,SET_CHANNEL,&channel) ) {
-				perror("ioctl");
-				exit(EXIT_FAILURE);
+			if ( channel >= 0 && channel <= 7 ) {
+				if( ioctl(fd,SET_CHANNEL,&channel) ) {
+					perror("ioctl");
+					exit(EXIT_FAILURE);
+				}
+			}
+			else {
+				printf("\n\tEnter valid ADC channel number\n\n");
+				channel = padc;
 			}
 	
 			printf("Enter ADC data allignment ( 1 for lower bytes and 2 for higher bytes ): ");
 			scanf("%d", &allignment);
 			while( getchar() != '\n');
-			if( ioctl(fd,SET_CHANNEL,&allignment) ) {
-				perror("ioctl");
-				exit(EXIT_FAILURE);	
+			if ( allignment == 1 || allignment == 2 ) {
+				if( ioctl(fd,SET_CHANNEL,&allignment) ) {
+					perror("ioctl");
+					exit(EXIT_FAILURE);	
+				}
+				if ( allignment == 1 ){
+					strncpy(allign,"Lower bytes",11);
+				}
+
+				else{
+					strncpy(allign,"Upper bytes",11);
+				}
+		
+			}
+			else {
+				printf("\n\tEnter valid value\n\n");
+				allignment = pa;
 			}
 
 			read(fd,&data,2);
